@@ -8,11 +8,11 @@ import numpy as np
 
 
 #get data from riot api
-API_KEY = "RGAPI-5447478d-c666-4908-8c78-5245364a43a4"
+API_KEY = "RGAPI-3bffee3e-3556-42aa-9bf0-3c99ccab5850"
 REGION = "europe"  # americas | asia | europe | sea
 headers = {"X-Riot-Token": API_KEY}
-gameName = "Sandalye1"  #username
-tagLine = "EUW"  #usertag
+gameName = "VELJA DEL REY"  #username
+tagLine = "2203"  #usertag
 
 
 #url = f"https://{REGION}.api.riotgames.com/lol/status/v4/platform-data"
@@ -21,17 +21,12 @@ url = f"https://europe.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{ga
 response = requests.get(url, headers=headers)
 data = response.json()
 
-
 puuid = data["puuid"]
 
 url = f"https://{REGION}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
 matches = requests.get(url, headers={"X-Riot-Token": API_KEY}).json()
 
-match_id = matches[1]
 
-#timeline
-url = f"https://{REGION}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
-timeline = requests.get(url, headers={"X-Riot-Token": API_KEY}).json()
 
 #events timestamps
 #for k in range(0,30):
@@ -40,6 +35,7 @@ timeline = requests.get(url, headers={"X-Riot-Token": API_KEY}).json()
 #for i in range(1,11):
     #print(timeline["info"]["frames"][11]['participantFrames'][str(i)]['position']) - all positions of champs on frame 11
 
+#MAP BUILDING
 #get map
 map_img = cv2.imread("map.jpg")
 map_img = cv2.cvtColor(map_img, cv2.COLOR_BGR2RGB)
@@ -64,16 +60,34 @@ def to_pixel(x, y, img_width=width, img_height=height):
 xs = []
 ys = []
 
+#POSITION COLLECTION
+#TODO NEED TO INVERT THE AXIS WHEN THE PLAYER IS ON RED SIDE OR FIGURE OUT ANOTHER SOLUTION
 positions = []
+match_number = 0
+for match_id in matches:
+    print(match_number)
+    #timeline
+    url = f"https://{REGION}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
+    timeline = requests.get(url, headers={"X-Riot-Token": API_KEY}).json()
+    
 
-frames = timeline['info']['frames']
-total_frames = len(frames)
+    frames = timeline['info']['frames']
+    total_frames = len(frames)
 
-for k in range(0,total_frames):
-    positions.append(timeline["info"]["frames"][k]['participantFrames'][str(1)]['position']) #champ 1
-    #print(timeline["info"]["frames"][11]['participantFrames'][str(i)]['position'])
+    for k in range(0,total_frames):
+        #the str(number) is the number of the player in the draft. 1-5 is the blue side players
+        position = timeline["info"]["frames"][k]['participantFrames'][str(2)]['position']
+        if 0 < position["x"] < RIOT_MAX_X and 0 < position["y"] < RIOT_MAX_Y: #checks if the player is dead
+            positions.append(position) #champ 2
+            print(timeline["info"]["frames"][k]['participantFrames'][str(2)]['position'])
+        #print(timeline["info"]["frames"][11]['participantFrames'][str(i)]['position'])
 
-print(positions)
+        # if k == 0:
+            # print(timeline["info"]["frames"][k]['participantFrames'])
+
+    match_number +=1
+
+# print(positions)
 
 
 
