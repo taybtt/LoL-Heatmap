@@ -8,7 +8,7 @@ import numpy as np
 
 
 #get data from riot api
-API_KEY = "RGAPI-3bffee3e-3556-42aa-9bf0-3c99ccab5850"
+API_KEY = ""
 REGION = "europe"  # americas | asia | europe | sea
 headers = {"X-Riot-Token": API_KEY}
 gameName = "VELJA DEL REY"  #username
